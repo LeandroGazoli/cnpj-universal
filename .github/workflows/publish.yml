@@ -3,7 +3,8 @@ name: Build and Publish to NPM
 on:
   push:
     branches:
-      - master # ou master
+      - main
+      - master
 
 jobs:
   publish:
@@ -36,5 +37,6 @@ jobs:
       - name: Versionar e Publicar (Semantic Release)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Padrão do GitHub Actions
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # O token que você criou no Passo 2
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # Variável esperada pelo @semantic-release/npm
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # Mantido para compatibilidade com npm CLI
         run: npx semantic-release
