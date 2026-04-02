@@ -1,0 +1,40 @@
+name: Build and Publish to NPM
+
+on:
+  push:
+    branches:
+      - main # ou master
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    # Necessário para o GitHub Actions ter permissão de criar tags/releases no repo
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Necessário para o semantic-release analisar o histórico de commits
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x" # Ajuste para a versão que você utiliza
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Build do projeto (gera a pasta dist)
+        run: npm run build
+
+      - name: Versionar e Publicar (Semantic Release)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Padrão do GitHub Actions
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # O token que você criou no Passo 2
+        run: npx semantic-release
