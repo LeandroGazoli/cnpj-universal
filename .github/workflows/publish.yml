@@ -38,4 +38,6 @@ jobs:
       - name: Versionar e Publicar (Semantic Release)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Padrão do GitHub Actions
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # Fallback quando Trusted Publishing (OIDC) não estiver ativo
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # Compatibilidade com npm CLI
         run: npx semantic-release
