@@ -3,7 +3,7 @@ name: Build and Publish to NPM
 on:
   push:
     branches:
-      - main # ou master
+      - master # ou master
 
 jobs:
   publish:
