@@ -1,27 +1,88 @@
-# cnpj-universal
+# CNPJ Universal ⚡
 
-Validação de CNPJ **numérico** (formato legado) e **alfanumérico** (novo formato SERPRO) para projetos NestJS e qualquer aplicação TypeScript/JavaScript que utilize `class-validator`.
+[![npm version](https://img.shields.io/npm/v/cnpj-universal?logo=npm&logoColor=white)](https://www.npmjs.com/package/cnpj-universal)
+[![npm downloads](https://img.shields.io/npm/dm/cnpj-universal?logo=npm&logoColor=white)](https://www.npmjs.com/package/cnpj-universal)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![NestJS](https://img.shields.io/badge/NestJS-Compatible-ea2845?logo=nestjs&logoColor=white)](https://nestjs.com/)
+
+**Validador Type-Safe para CNPJ Numérico (Legado) e Alfanumérico (Novo Formato SERPRO).**
+
+Compatível com **NestJS**, **class-validator** e **TypeScript/JavaScript puro**, com suporte completo para ambos os formatos de CNPJ brasileiros.
 
 ---
 
-## Instalação
+## 📋 Índice
+
+- [Características](#-características)
+- [Instalação](#-instalação)
+- [Casos de Uso](#-casos-de-uso)
+- [Uso Básico](#-uso-básico)
+  - [Decorator @IsCNPJ (NestJS/Class-Validator)](#decorator-iscnpj-nestjsclass-validator)
+  - [Classe Utilitária CNPJ](#classe-utilitária-cnpj)
+- [Compatibilidade](#-compatibilidade)
+- [Formatos Aceitos](#-formatos-aceitos)
+- [Sobre o Novo CNPJ Alfanumérico](#-sobre-o-novo-cnpj-alfanumérico)
+- [Tratamento de Erros](#-tratamento-de-erros)
+- [Contribuindo](#-contribuindo)
+- [Licença](#-licença)
+
+---
+
+## ✨ Características
+
+✅ **Validação Dual**: Suporta CNPJ numérico (legado) e alfanumérico (novo formato SERPRO)  
+✅ **Sem Dependências Externas**: Apenas `class-validator` como peer dependency  
+✅ **Type-Safe**: Totalmente tipado em TypeScript  
+✅ **NestJS Ready**: Funciona como decorator em DTOs  
+✅ **Flexível**: Com ou sem máscara (`XX.XXX.XXX/XXXX-XX`)  
+✅ **Batch Operations**: Métodos utilitários para cálculo de dígitos verificadores  
+✅ **Leve**: ~2KB minificado  
+✅ **Zero Breaking Changes**: API estável desde v1.0.0
+
+---
+
+## 🚀 Instalação
 
 ```bash
 npm install cnpj-universal
-# ou
+```
+
+Com yarn:
+
+```bash
 yarn add cnpj-universal
 ```
 
-> **Peer dependency:** `class-validator >= 0.13.0`
+Com pnpm:
+
+```bash
+pnpm add cnpj-universal
+```
+
+**Peer Dependency:** `class-validator >= 0.13.0`
 
 ---
 
-## Uso
+## 💡 Casos de Uso
 
-### Decorator `@IsCNPJ` em DTOs (NestJS / class-validator)
+- **Formulários de Cadastro de Empresas**: Validar CNPJ ao integrar com APIs de Receita Federal
+- **Gateways de Pagamento**: Garantir CNPJ válido antes de processar transações
+- **Sistemas de Fornecedores**: Importar e validar CNPJ de base de dados terceira
+- **NFC-e e Nota Fiscal**: Validar CNPJ do emitente/destinatário em projetos de nota fiscal
+- **Consultas em APIs Externas**: Validar antes de chamar SERPRO, BrAPI, etc.
+- **Portais B2B**: Permitir apenas empresas com CNPJ válido
+
+---
+
+## 📖 Uso Básico
+
+### Decorator `@IsCNPJ` (NestJS/class-validator)
+
+**Com DTO + Validação Automática:**
 
 ```typescript
-import { IsCNPJ } from 'cnpj-universal';
+import { IsCNPJ } from "cnpj-universal";
 
 export class EmpresaDto {
   @IsCNPJ()
@@ -29,58 +90,180 @@ export class EmpresaDto {
 }
 ```
 
-Funciona automaticamente com ambos os formatos, com ou sem máscara:
+Use em um controller NestJS:
+
+```typescript
+import { Controller, Post, Body } from "@nestjs/common";
+
+@Controller("empresas")
+export class EmpresasController {
+  @Post()
+  criar(@Body() empresa: EmpresaDto) {
+    // Se chegar aqui, CNPJ foi validado automaticamente 🎉
+    return { mensaje: `Empresa ${empresa.cnpj} criada!` };
+  }
+}
+```
+
+**Formatos Aceitos Automaticamente:**
 
 ```
-11.222.333/0001-81   ✅ numérico com máscara
-11222333000181       ✅ numérico sem máscara
-12.ABC.345/01DE-35   ✅ alfanumérico com máscara
-12ABC34501DE35       ✅ alfanumérico sem máscara
+11.222.333/0001-81   ✅ Numérico com máscara
+11222333000181       ✅ Numérico sem máscara
+12.ABC.345/01DE-35   ✅ Alfanumérico com máscara
+12ABC34501DE35       ✅ Alfanumérico sem máscara
+00.000.000/0000-00   ❌ Sequência repetida (inválido)
 ```
 
 ---
 
-### Classe utilitária `CNPJ`
+### Classe Utilitária `CNPJ`
 
-#### `CNPJ.isValid(cnpj)`
+**para validações manuais:**
 
-Retorna `true` se o CNPJ for válido (numérico ou alfanumérico, com ou sem máscara).
+#### `CNPJ.isValid(cnpj: string): boolean`
 
 ```typescript
-import { CNPJ } from 'cnpj-universal';
+import { CNPJ } from "cnpj-universal";
 
-CNPJ.isValid('11.222.333/0001-81')  // true
-CNPJ.isValid('12.ABC.345/01DE-35')  // true
-CNPJ.isValid('00.000.000/0000-00')  // false
+// Numérico
+CNPJ.isValid("11.222.333/0001-81"); // ✅ true
+CNPJ.isValid("11222333000181"); // ✅ true
+
+// Alfanumérico
+CNPJ.isValid("12.ABC.345/01DE-35"); // ✅ true
+CNPJ.isValid("12ABC34501DE35"); // ✅ true
+
+// Inválido
+CNPJ.isValid("00.000.000/0000-00"); // ❌ false (sequência repetida)
+CNPJ.isValid("12.345.678/9999-99"); // ❌ false (dígitos verificadores inválidos)
 ```
 
-#### `CNPJ.calculaDV(cnpj12)`
+#### `CNPJ.calculaDV(cnpj12: string): string`
 
-Calcula os dois dígitos verificadores a partir dos 12 primeiros caracteres do CNPJ alfanumérico.
+Calcula dígitos verificadores para CNPJ alfanumérico:
 
 ```typescript
-CNPJ.calculaDV('12ABC34501DE')  // '35'
+CNPJ.calculaDV("12ABC34501DE"); // '35'
+CNPJ.calculaDV("11222333000181"); // Retorna último 2 dígitos do numérico
 ```
 
-#### `CNPJ.formatar(cnpj)`
+#### `CNPJ.formatar(cnpj: string): string`
 
-Formata um CNPJ de 14 caracteres (sem máscara) para o padrão `XX.XXX.XXX/XXXX-XX`.
+Formata para padrão `XX.XXX.XXX/XXXX-XX`:
 
 ```typescript
-CNPJ.formatar('12ABC34501DE35')  // '12.ABC.345/01DE-35'
-CNPJ.formatar('11222333000181')  // '11.222.333/0001-81'
+CNPJ.formatar("12ABC34501DE35"); // '12.ABC.345/01DE-35'
+CNPJ.formatar("11222333000181"); // '11.222.333/0001-81'
 ```
 
 ---
 
-## Sobre o novo CNPJ alfanumérico
+## 🔗 Compatibilidade
 
-A Receita Federal, em conjunto com o SERPRO, atualizou o formato do CNPJ para suportar caracteres alfanuméricos (letras A–Z e dígitos 0–9) nos 12 primeiros caracteres. Os dois últimos caracteres continuam sendo dígitos verificadores numéricos, calculados pelo algoritmo módulo 11 com pesos de 2 a 9.
-
-Referência: [SERPRO — Cálculo dos dígitos verificadores de CNPJ alfanumérico](https://www.serpro.gov.br)
+| Tecnologia        | Versão   | Suporte                    |
+| ----------------- | -------- | -------------------------- |
+| Node.js           | ≥ 18.x   | ✅ Full                    |
+| TypeScript        | ≥ 5.x    | ✅ Full                    |
+| NestJS            | ≥ 10.x   | ✅ Full                    |
+| class-validator   | ≥ 0.13.0 | ✅ Peer                    |
+| React/Vue/Angular | Qualquer | ✅ Full (validação manual) |
 
 ---
 
-## Licença
+## 📋 Formatos Aceitos
 
-MIT
+| Formato                      | Exemplo              | Status           |
+| ---------------------------- | -------------------- | ---------------- |
+| **Numérico com máscara**     | `11.222.333/0001-81` | ✅               |
+| **Numérico sem máscara**     | `11222333000181`     | ✅               |
+| **Alfanumérico com máscara** | `12.ABC.345/01DE-35` | ✅               |
+| **Alfanumérico sem máscara** | `12ABC34501DE35`     | ✅               |
+| **Maiúsculas/Minúsculas**    | `12.abc.345/01de-35` | ✅ (normalizado) |
+
+---
+
+## 📚 Sobre o Novo CNPJ Alfanumérico
+
+A **Receita Federal** e o **SERPRO** atualizaram o formato CNPJ para suportar caracteres alfanuméricos (A–Z, 0–9) nos 12 primeiros dígitos, com dígitos verificadores calculados pelo algoritmo **módulo 11** com pesos de 2 a 9.
+
+**Migração Gradual:**
+
+- ✅ Formato numérico legado **permanece válido**
+- ✅ Novo formato alfanumérico agora também válido
+- ✅ Ambos coexistem durante período de transição
+
+Referência: [SERPRO — Documentação CNPJ Alfanumérico](https://www.serpro.gov.br)
+
+---
+
+## ⚠️ Tratamento de Erros
+
+Com NestJS, erros de validação são capturados automaticamente:
+
+```typescript
+// Requisição com CNPJ inválido
+POST /empresas
+{
+  "cnpj": "00.000.000/0000-00"
+}
+
+// Resposta (400 Bad Request)
+{
+  "statusCode": 400,
+  "message": [
+    "cnpj must be a valid CNPJ"
+  ],
+  "error": "Bad Request"
+}
+```
+
+Para validação manual com tratamento:
+
+```typescript
+import { CNPJ } from "cnpj-universal";
+
+try {
+  const cnpj = "00.000.000/0000-00";
+
+  if (!CNPJ.isValid(cnpj)) {
+    throw new Error(`CNPJ inválido: ${cnpj}`);
+  }
+
+  const cnpjFormatado = CNPJ.formatar(cnpj);
+  console.log(`✅ CNPJ válido: ${cnpjFormatado}`);
+} catch (erro) {
+  console.error(`❌ ${erro.message}`);
+}
+```
+
+---
+
+## 🤝 Contribuindo
+
+Encontrou um bug? Tem uma sugestão? **Abra uma issue!**
+
+[👉 Issues](https://github.com/LeandroGazoli/cnpj-universal/issues)
+
+### Desenvolvimento Local
+
+```bash
+# Clone
+git clone https://github.com/LeandroGazoli/cnpj-universal.git
+cd cnpj-universal
+
+# Instale dependências
+npm install
+
+# Rode testes
+npm test
+
+# Build
+npm run build
+```
+
+---
+
+## 📄 Licença
+
+[MIT](LICENSE) © Leandro Gazoli

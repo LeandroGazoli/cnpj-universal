@@ -1,7 +1,7 @@
 {
   "name": "cnpj-universal",
   "version": "1.0.0",
-  "description": "Validação de CNPJ numérico (legado) e alfanumérico (novo formato SERPRO) para NestJS e class-validator.",
+  "description": "⚡ Validador Type-Safe para CNPJ Numérico (Legado) e Alfanumérico (Novo Formato SERPRO). Compatível com NestJS, class-validator e TypeScript/JavaScript puro.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -22,15 +22,31 @@
   },
   "keywords": [
     "cnpj",
+    "cnpj-validator",
     "cnpj-alfanumerico",
     "validator",
+    "validation",
     "nestjs",
     "class-validator",
     "brasil",
-    "serpro"
+    "brazil",
+    "serpro",
+    "document-validation",
+    "typescript",
+    "deco-validator",
+    "business-registration",
+    "fiscal-number"
   ],
-  "author": "",
+  "author": "Leandro Gazoli",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LeandroGazoli/cnpj-universal"
+  },
+  "homepage": "https://github.com/LeandroGazoli/cnpj-universal#readme",
+  "bugs": {
+    "url": "https://github.com/LeandroGazoli/cnpj-universal/issues"
+  },
   "peerDependencies": {
     "class-validator": ">=0.13.0"
   },
