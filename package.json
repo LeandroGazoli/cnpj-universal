@@ -1,6 +1,6 @@
 {
   "name": "cnpj-universal",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "⚡ Validador Type-Safe para CNPJ Numérico (Legado) e Alfanumérico (Novo Formato SERPRO). Compatível com NestJS, class-validator e TypeScript/JavaScript puro.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
