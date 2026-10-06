@@ -35,35 +35,11 @@ function calcularDVAlfanumerico(cnpj12: string): string {
   return `${dv1}${dv2}`;
 }
 
-function validarCNPJNumerico(cnpj: string): boolean {
-  if (isSequenciaRepetida(cnpj)) return false;
-
-  let length = cnpj.length - 2;
-  let numbers = cnpj.substring(0, length);
-  const digits = cnpj.substring(length);
-  let sum = 0;
-  let pos = length - 7;
-
-  for (let i = length; i >= 1; i--) {
-    sum += parseInt(numbers.charAt(length - i)) * pos--;
-    if (pos < 2) pos = 9;
-  }
-  let result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
-  if (result !== parseInt(digits.charAt(0))) return false;
-
-  length += 1;
-  numbers = cnpj.substring(0, length);
-  sum = 0;
-  pos = length - 7;
-  for (let i = length; i >= 1; i--) {
-    sum += parseInt(numbers.charAt(length - i)) * pos--;
-    if (pos < 2) pos = 9;
-  }
-  result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
-  return result === parseInt(digits.charAt(1));
-}
-
-function validarCNPJAlfanumerico(cnpj: string): boolean {
+/**
+ * Valida o DV de CNPJs numéricos e alfanuméricos: o valor de cada caractere é
+ * seu código ASCII − 48, o que coincide com o dígito nos CNPJs numéricos.
+ */
+function validarDV(cnpj: string): boolean {
   if (isSequenciaRepetida(cnpj)) return false;
   const cnpj12 = cnpj.substring(0, TAMANHO_SEM_DV);
   const dvInformado = cnpj.substring(TAMANHO_SEM_DV);
@@ -89,12 +65,11 @@ export class CNPJ {
 
     const cnpjLimpo = removerMascara(cnpj);
 
-    if (REGEX_CNPJ_NUMERICO.test(cnpjLimpo)) {
-      return validarCNPJNumerico(cnpjLimpo);
-    }
-
-    if (REGEX_CNPJ_ALFANUMERICO.test(cnpjLimpo)) {
-      return validarCNPJAlfanumerico(cnpjLimpo);
+    if (
+      REGEX_CNPJ_NUMERICO.test(cnpjLimpo) ||
+      REGEX_CNPJ_ALFANUMERICO.test(cnpjLimpo)
+    ) {
+      return validarDV(cnpjLimpo);
     }
 
     return false;

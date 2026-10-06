@@ -120,3 +120,29 @@ describe('@IsCNPJ (IsCNPJConstraint)', () => {
     expect(constraint.defaultMessage()).toBe('CNPJ inválido!');
   });
 });
+
+// ─── Regressão: algoritmo unificado ──────────────────────────────────────────
+
+describe('CNPJ.isValid — algoritmo unificado', () => {
+  const dvModulo11 = (base: string): string => {
+    const calc = (s: string) => {
+      let peso = s.length - 7;
+      let soma = 0;
+      for (const c of s) {
+        soma += Number(c) * peso--;
+        if (peso < 2) peso = 9;
+      }
+      return soma % 11 < 2 ? 0 : 11 - (soma % 11);
+    };
+    const d1 = calc(base);
+    return `${d1}${calc(base + d1)}`;
+  };
+
+  it('concorda com o módulo 11 clássico em CNPJs numéricos aleatórios', () => {
+    for (let i = 0; i < 500; i++) {
+      const base = String(Math.floor(Math.random() * 1e12)).padStart(12, '0');
+      if (/^(.)\1+$/.test(base)) continue;
+      expect(CNPJ.isValid(base + dvModulo11(base))).toBe(true);
+    }
+  });
+});

@@ -32,6 +32,9 @@ jobs:
       - name: Instalar dependências
         run: npm ci
 
+      - name: Testes
+        run: npm test
+
       - name: Build do projeto (gera a pasta dist)
         run: npm run build
 

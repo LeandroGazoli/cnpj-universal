@@ -32,7 +32,7 @@ Compatível com **NestJS**, **class-validator** e **TypeScript/JavaScript puro**
 ## ✨ Características
 
 ✅ **Validação Dual**: Suporta CNPJ numérico (legado) e alfanumérico (novo formato SERPRO)  
-✅ **Sem Dependências Externas**: Apenas `class-validator` como peer dependency  
+✅ **Sem Dependências Externas**: `class-validator` é peer dependency opcional (só para o decorator)  
 ✅ **Type-Safe**: Totalmente tipado em TypeScript  
 ✅ **NestJS Ready**: Funciona como decorator em DTOs  
 ✅ **Flexível**: Com ou sem máscara (`XX.XXX.XXX/XXXX-XX`)  
@@ -60,7 +60,13 @@ Com pnpm:
 pnpm add cnpj-universal
 ```
 
-**Peer Dependency:** `class-validator >= 0.13.0`
+**Peer Dependency (opcional):** `class-validator >= 0.13.0` — necessário apenas para o decorator `@IsCNPJ`.
+
+Para usar somente a classe `CNPJ`, sem `class-validator` instalado, importe do subpath:
+
+```ts
+import { CNPJ } from "cnpj-universal/core";
+```
 
 ---
 
